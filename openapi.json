@@ -1,0 +1,42 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Looper #156 Security Auditor API",
+    "description": "On-chain A2A Security Audit Service gated by 0.10 USDC on Base.",
+    "version": "v1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://hook.eu1.make.com"
+    }
+  ],
+  "paths": {
+    "/qswu1qz4ajnnhqj2ib8qgu3m5hvbie5m": {
+      "post": {
+        "summary": "Run contract security audit",
+        "operationId": "auditContract",
+        "description": "Submits a smart contract address on Base for security analysis. Requires a valid 0.10 USDC transaction hash on Base sent to wallet 0x611270E226a1999A97B4b7856D358d2210C5EC93.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["sender", "signal", "txHash"],
+                "properties": {
+                  "sender": { "type": "string" },
+                  "signal": { "type": "string" },
+                  "txHash": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Audit completed successfully" },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    }
+  }
+}
