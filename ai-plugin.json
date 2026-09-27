@@ -1,17 +1,19 @@
 {
   "schema_version": "v1",
   "name_for_model": "looper_156_contract_auditor",
-  "name_for_human": "Looper #156 - Base Contract Security Auditor",
-  "description_for_model": "Automated security and risk auditor for smart contracts on Base chain. Requires 0.10 USDC payment per call.",
-  "description_for_human": "Autonomous contract security auditor for Base smart contracts. 0.10 USDC per audit.",
-  "auth": { "type": "none" },
+  "name_for_human": "Looper Squad #156 - A2A Security Audit Gateway",
+  "description_for_model": "Automated, real-time security analysis and risk evaluation for smart contracts deployed on Base (Chain ID 8453). Each call costs 0.10 USDC on Base, paid to the recipient wallet in x_a2a_payment. Workflow: 1) send exactly 0.10 USDC (asset 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913) on Base to 0x611270E226a1999A97B4b7856D358d2210C5EC93; 2) call auditContract with 'sender' = the paying wallet address, 'signal' = the target contract address to audit, 'txHash' = the payment transaction hash. Each txHash can be used only once. On success the response is {\"status\": \"success\", \"audit\": \"<audit report with risk assessment>\"}. HTTP 402 with {\"error\": \"...\"} means the payment is missing, invalid, or already used.",
+  "description_for_human": "Pay-per-call smart contract security and risk audits for AI agents on Base. 0.10 USDC per audit.",
+  "auth": {
+    "type": "none"
+  },
   "api": {
     "type": "openapi",
     "url": "https://raw.githubusercontent.com/bfischZH/a2a-services/main/openapi.json"
   },
-  "logo_url": "https://base.org/blue-dot.png",
+  "logo_url": "https://github.com/bfischZH.png",
   "contact_email": "support@looper-squad.com",
-  "legal_info_url": "https://raw.githubusercontent.com/bfischZH/a2a-services/main/README.md",
+  "legal_info_url": "https://github.com/bfischZH/a2a-services/blob/main/README.md",
   "x_a2a_payment": {
     "protocol": "txHash-body",
     "network": "base",
@@ -19,6 +21,7 @@
     "asset": "USDC",
     "asset_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     "amount": "0.10",
-    "recipient_wallet": "0x611270E226a1999A97B4b7856D358d2210C5EC93"
+    "recipient_wallet": "0x611270E226a1999A97B4b7856D358d2210C5EC93",
+    "replay_protection": true
   }
 }
