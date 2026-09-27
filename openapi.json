@@ -1,40 +1,117 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Looper #156 Security Auditor API",
-    "description": "On-chain A2A Security Audit Service gated by 0.10 USDC on Base.",
-    "version": "v1.0.0"
+    "title": "Looper Squad #156 - A2A Security Audit Gateway",
+    "description": "Automated, real-time smart contract security analysis and risk evaluation for autonomous AI agents on Base (Chain ID 8453). Access is gated by a 0.10 USDC payment on Base, verified on-chain via RPC. Each payment transaction hash can be redeemed only once (replay protection).",
+    "version": "1.1.0",
+    "contact": {
+      "email": "support@looper-squad.com",
+      "url": "https://github.com/bfischZH/a2a-services"
+    }
   },
   "servers": [
     {
-      "url": "https://hook.eu1.make.com"
+      "url": "https://hook.eu1.make.com",
+      "description": "Production gateway"
     }
   ],
   "paths": {
     "/qswu1qz4ajnnhqj2ib8qgu3m5hvbie5m": {
       "post": {
-        "summary": "Run contract security audit",
+        "summary": "Run smart contract security audit",
         "operationId": "auditContract",
-        "description": "Submits a smart contract address on Base for security analysis. Requires a valid 0.10 USDC transaction hash on Base sent to wallet 0x611270E226a1999A97B4b7856D358d2210C5EC93.",
+        "description": "Submits a smart contract address on Base for security analysis. Requires a valid, unused transaction hash of a 0.10 USDC transfer on Base (USDC 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913) sent to wallet 0x611270E226a1999A97B4b7856D358d2210C5EC93.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": ["sender", "signal", "txHash"],
-                "properties": {
-                  "sender": { "type": "string" },
-                  "signal": { "type": "string" },
-                  "txHash": { "type": "string" }
-                }
+                "$ref": "#/components/schemas/AuditRequest"
+              },
+              "example": {
+                "sender": "0x1234567890abcdef1234567890abcdef12345678",
+                "signal": "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+                "txHash": "0x9f2c4e7a1b3d5f7092e4c6a8b0d2f4e6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8"
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Audit completed successfully" },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Audit completed successfully. Returns the generated audit report including a risk assessment for the target contract.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditResult"
+                },
+                "example": {
+                  "status": "success",
+                  "audit": "Audit report for 0xabcdefabcdefabcdefabcdefabcdefabcdefabcd on Base: Risk level HIGH. The owner can mint tokens without a supply cap, and the proxy can be upgraded without a timelock. Interaction is not recommended without further review."
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required. The txHash is missing or invalid (wrong recipient, asset, amount or network), or it has already been used (replay protection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentError"
+                },
+                "example": {
+                  "error": "Payment required or transaction hash already used."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuditRequest": {
+        "type": "object",
+        "required": ["sender", "signal", "txHash"],
+        "properties": {
+          "sender": {
+            "type": "string",
+            "description": "Wallet address of the calling agent (the wallet that sent the 0.10 USDC payment)."
+          },
+          "signal": {
+            "type": "string",
+            "description": "Address of the smart contract on Base to audit."
+          },
+          "txHash": {
+            "type": "string",
+            "description": "Transaction hash of the 0.10 USDC payment on Base. Each hash can be used only once."
+          }
+        }
+      },
+      "AuditResult": {
+        "type": "object",
+        "required": ["status", "audit"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success"],
+            "description": "Always 'success' for a completed audit."
+          },
+          "audit": {
+            "type": "string",
+            "description": "Generated audit report with risk assessment for the target smart contract (free text)."
+          }
+        }
+      },
+      "PaymentError": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message explaining that a valid, unused payment is required.",
+            "example": "Payment required or transaction hash already used."
+          }
         }
       }
     }
